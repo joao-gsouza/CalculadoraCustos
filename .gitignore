@@ -1,0 +1,69 @@
+# ==========================================
+# 1. IDEs e Editores (VS e VS Code)
+# ==========================================
+# Visual Studio
+.vs/
+*.user
+*.userosscache
+*.sln.docstates
+*.suo
+*.cache
+
+# Visual Studio Code
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.code-workspace
+
+# ==========================================
+# 2. Backend (.NET / C#)
+# ==========================================
+# Compilação e Build
+[Bb]in/
+[Oo]bj/
+[Oo]ut/
+TestResults/
+
+# Logs do Entity Framework e Sistema
+*.log
+
+# Arquivos locais de configuração (opcional, remova o # se for usar)
+# appsettings.local.json
+# appsettings.Development.json
+
+# ==========================================
+# 3. Frontend (Angular / Node.js)
+# ==========================================
+# Dependências
+node_modules/
+npm-debug.log
+yarn-error.log
+yarn-debug.log
+
+# Build e Compilação
+dist/
+tmp/
+out-tsc/
+
+# Cache da CLI do Angular
+.angular/
+
+# Variáveis de ambiente locais
+.env
+.env.local
+
+# ==========================================
+# 4. Sistema Operacional
+# ==========================================
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
