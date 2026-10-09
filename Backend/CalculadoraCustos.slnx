@@ -3,4 +3,5 @@
   <Project Path="BellaMassa.Application/CalculadoraCustos.Application.csproj" />
   <Project Path="BellaMassa.Domain/CalculadoraCustos.Domain.csproj" />
   <Project Path="BellaMassa.Infrastructure/CalculadoraCustos.Infrastructure.csproj" />
+  <Project Path="CalculadoraCustos.Tests/CalculadoraCustos.Tests.csproj" Id="07b6837f-d824-478c-97dd-ff6dec24e9c1" />
 </Solution>
