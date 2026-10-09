@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="BellaMassa.API/CalculadoraCustos.API.csproj" />
+  <Project Path="BellaMassa.Application/CalculadoraCustos.Application.csproj" />
+  <Project Path="BellaMassa.Domain/CalculadoraCustos.Domain.csproj" />
+  <Project Path="BellaMassa.Infrastructure/CalculadoraCustos.Infrastructure.csproj" />
+</Solution>
