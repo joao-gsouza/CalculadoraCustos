@@ -1,0 +1,114 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+permissions:
+  contents: read
+  pull-requests: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      backend: ${{ github.event_name == 'push' || steps.filter.outputs.backend == 'true' }}
+      frontend: ${{ steps.front.outputs.existe == 'true' && (github.event_name == 'push' || steps.filter.outputs.frontend == 'true') }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Detectar mudanças
+        id: filter
+        if: github.event_name == 'pull_request'
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            backend:
+              - 'Backend/**'
+              - '.github/workflows/ci.yml'
+            frontend:
+              - 'Frontend/**'
+              - '.github/workflows/ci.yml'
+
+      - name: Verificar se o front já existe
+        id: front
+        run: |
+          if [ -f Frontend/package.json ]; then
+            echo "existe=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "existe=false" >> "$GITHUB_OUTPUT"
+          fi
+
+  backend:
+    needs: changes
+    if: needs.changes.outputs.backend == 'true'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: Backend
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Restaurar pacotes
+        run: dotnet restore CalculadoraCustos.slnx
+
+      - name: Compilar
+        run: dotnet build CalculadoraCustos.slnx -c Release --no-restore
+
+      - name: Rodar testes
+        run: dotnet test CalculadoraCustos.slnx -c Release --no-build --verbosity normal
+
+  frontend:
+    needs: changes
+    if: needs.changes.outputs.frontend == 'true'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: Frontend
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: Frontend/package-lock.json
+
+      - run: npm ci
+      - run: npm run lint
+      - run: npm test
+      - run: npm run build
+
+  validar-origem:
+    if: github.event_name == 'pull_request' && github.base_ref == 'main'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Só develop ou hotfix/* podem ir para a main
+        run: |
+          if [[ "${{ github.head_ref }}" != "develop" && "${{ github.head_ref }}" != hotfix/* ]]; then
+            echo "::error::PRs para a main devem vir da develop (ou hotfix/*). Origem: ${{ github.head_ref }}"
+            exit 1
+          fi
+
+  ci-ok:
+    if: always()
+    needs: [changes, backend, frontend, validar-origem]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verificar resultado dos jobs
+        run: |
+          if [[ "${{ contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled') }}" == "true" ]]; then
+            echo "::error::Algum job falhou ou foi cancelado."
+            exit 1
+          fi
+          echo "Todos os jobs passaram ou foram pulados."
